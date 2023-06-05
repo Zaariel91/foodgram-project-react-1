@@ -5,38 +5,43 @@ from .models import (Favourite, Ingredient, IngredientInRecipe, Recipe,
                      ShoppingCart, Tag)
 
 
+class IngredientInline(admin.TabularInline):
+    """Отображение модели IngredientInRecipe."""
+    model = IngredientInRecipe
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'id', 'author', 'added_in_favorites')
-    readonly_fields = ('added_in_favorites',)
-    list_filter = ('author', 'name', 'tags',)
+    """Отображение модели Recipe."""
+    inlines = (IngredientInline,)
+    list_display = ('name', 'author', 'cooking_time',
+                    'id', 'count_favorite', 'pub_date',)
 
-    @display(description='Количество в избранных')
-    def added_in_favorites(self, obj):
+    @display(description='Количество избранных рецептов')
+    def count_favorite(self, obj):
         return obj.favorites.count()
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
+    """Отображение модели Ingredient."""
     list_display = ('name', 'measurement_unit',)
-    list_filter = ('name',)
+    inlines = (IngredientInline,)
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
+    """Отображение модели Tag."""
     list_display = ('name', 'color', 'slug',)
 
 
 @admin.register(ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
+    """Отображение корзины покупок в админ-панели."""
     list_display = ('user', 'recipe',)
 
 
 @admin.register(Favourite)
 class FavouriteAdmin(admin.ModelAdmin):
+    """Отображение избранных рецептов в админ-панели."""
     list_display = ('user', 'recipe',)
-
-
-@admin.register(IngredientInRecipe)
-class IngredientInRecipe(admin.ModelAdmin):
-    list_display = ('recipe', 'ingredient', 'amount',)
