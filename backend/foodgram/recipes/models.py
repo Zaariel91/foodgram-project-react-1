@@ -108,7 +108,7 @@ class IngredientInRecipe(models.Model):
         return f'{self.recipe} - {self.amount} - {self.ingredient}'
 
 
-class Favorite(models.Model):
+class Favourite(models.Model):
     """Модель избранных рецептов."""
     user = models.ForeignKey(
         User,

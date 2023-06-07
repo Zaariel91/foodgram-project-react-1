@@ -7,7 +7,8 @@ from rest_framework import exceptions, serializers
 
 from recipes.models import (Ingredient, Tag, Recipe, Favourite,
                             ShoppingCart, IngredientInRecipe)
-from users.serializers import CustomUserSerializer
+from users.serializers import (CustomUserSerializer,
+                               RecipeCreateIngredientsSerializer)
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -63,19 +64,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         if not request or request.user.is_anonymous:
             return False
         return obj.is_in_shopping_cart(request.user)
-
-
-class RecipeCreateIngredientsSerializer(serializers.ModelSerializer):
-    id = IntegerField(write_only=True)
-    amount = IntegerField(
-        validators=(
-            MinValueValidator(1, message='Минимальное количество - 1.'),
-        )
-    )
-
-    class Meta:
-        model = IngredientInRecipe
-        fields = ('id', 'amount')
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):

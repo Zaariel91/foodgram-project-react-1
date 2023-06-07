@@ -1,11 +1,26 @@
-# CustomUserSerializer, SubscribeSerializer
+from django.core.validators import MinValueValidator
 from django.contrib.auth import get_user_model
 from rest_framework import serializers, validators
 from djoser.serializers import UserSerializer, UserCreateSerializer
+from drf_extra_fields.fields import IntegerField
 
-from .serializers import RecipeCreateIngredientsSerializer
+from recipes.models import IngredientInRecipe
+
 
 User = get_user_model()
+
+
+class RecipeCreateIngredientsSerializer(serializers.ModelSerializer):
+    id = IntegerField(write_only=True)
+    amount = IntegerField(
+        validators=(
+            MinValueValidator(1, message='Минимальное количество - 1.'),
+        )
+    )
+
+    class Meta:
+        model = IngredientInRecipe
+        fields = ('id', 'amount')
 
 class CustomUserCreateSerializer(UserCreateSerializer):
     """Сериалайзер создания пользователя."""
