@@ -5,10 +5,14 @@ from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField, IntegerField
 from rest_framework import exceptions, serializers
 
-from recipes.models import (Ingredient, Tag, Recipe, Favourite,
-                            ShoppingCart, IngredientInRecipe)
-from users.serializers import (CustomUserSerializer,
-                               RecipeCreateIngredientsSerializer)
+from recipes.models import (
+    Ingredient, Tag, Recipe, Favourite,
+    ShoppingCart, IngredientInRecipe
+)
+from users.serializers import (
+    CustomUserSerializer,
+    RecipeCreateIngredientsSerializer
+)
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -92,18 +96,16 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError({
                 'Нужно добавить хотя бы один ингредиент.'
             })
-        ingredients_list = []
-        for item in value:
-            ingredient = get_object_or_404(Ingredient, id=item['id'])
-            if ingredient in ingredients_list:
-                raise exceptions.ValidationError({
+        ingredients = [item['id'] for item in value]
+        if len(ingredients) != len(set(ingredients)):
+            raise exceptions.ValidationError({
                     'Ингридиент уже есть в списке.'
                 })
+        for item in value:
             if int(item['amount']) < 1:
                 raise exceptions.ValidationError({
                     'Количество ингредиента должно быть больше 0.'
                 })
-            ingredients_list.append(ingredient)
         return value
 
     def validate_tags(self, value):
@@ -112,24 +114,21 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError({
                 'Нужно добавить хотя бы один тег.'
             })
-        tags_list = []
-        for tag in value:
-            if tag in tags_list:
-                raise exceptions.ValidationError({
-                    'Теги должны быть уникальными.'
-                })
-            tags_list.append(tag)
+        if len(value) != len(set(value)):
+            raise exceptions.ValidationError({
+                'Теги должны быть уникальными.'
+            })
         return value
 
     @transaction.atomic
     def amounts_of_ingredients(self, ingredients, recipe):
         """Метод создания ингредиента."""
         IngredientInRecipe.objects.bulk_create(
-            [IngredientInRecipe(
+            (IngredientInRecipe(
                 ingredient=Ingredient.objects.get(id=ingredient['id']),
                 recipe=recipe,
                 amount=ingredient['amount']
-            ) for ingredient in ingredients]
+            ) for ingredient in ingredients)
         )
 
     @transaction.atomic
@@ -140,8 +139,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(author=author, **validated_data)
         recipe.tags.set(tags)
-        self.amounts_of_ingredients(recipe=recipe,
-                                        ingredients=ingredients)
+        self.amounts_of_ingredients(recipe=recipe, ingredients=ingredients)
         return recipe
 
     @transaction.atomic
@@ -153,8 +151,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         instance.tags.clear()
         instance.tags.set(tags)
         instance.ingredients.clear()
-        self.amounts_of_ingredients(recipe=instance,
-                                        ingredients=ingredients)
+        self.amounts_of_ingredients(recipe=instance, ingredients=ingredients)
         instance.save()
         return instance
 

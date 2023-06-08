@@ -8,6 +8,7 @@ from .models import (Favourite, Ingredient, IngredientInRecipe, Recipe,
 class IngredientInline(admin.TabularInline):
     """Отображение модели IngredientInRecipe."""
     model = IngredientInRecipe
+    min_num = 1
 
 
 @admin.register(Recipe)

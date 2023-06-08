@@ -10,9 +10,10 @@ from recipes.models import Recipe, Ingredient, Tag, IngredientInRecipe
 from .filter import RecipeFilter
 from .pagination import LimitPageNumberPagination
 from .permissions import IsAuthorOrAdminPermission, IsAdminOrReadOnly
-from .serializers import (RecipeSerializer, RecipeWriteSerializer,
-                          IngredientSerializer, TagSerializer,
-                          FavouriteRecipeSerializer)
+from .serializers import (
+    RecipeSerializer, RecipeWriteSerializer, IngredientSerializer,
+    TagSerializer, FavouriteRecipeSerializer
+)
 from recipes.models import Favourite, ShoppingCart
 
 
@@ -26,7 +27,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     
     def perform_create(self, serializer):
-        '''Функция создания нового рецепта.'''
+        """Функция создания нового рецепта."""
         serializer.save(author=self.request.user,)
 
     def get_serializer_class(self):
@@ -59,8 +60,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'POST':
             creation_model = model.objects.filter(user=user, recipe=recipe)
             if creation_model.exists():
-                return Response({'errors': 'Рецепт уже существует.'},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {'errors': 'Рецепт уже существует.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             model.objects.create(user=user, recipe=recipe)
             serializer = FavouriteRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -69,8 +72,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             if obj.exists():
                 obj.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response({'errors': 'Рецепт уже удален.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'errors': 'Рецепт уже удален.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     @action(
         detail=False,

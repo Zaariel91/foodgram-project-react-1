@@ -11,12 +11,19 @@ User = get_user_model()
 
 
 class RecipeCreateIngredientsSerializer(serializers.ModelSerializer):
+    """Сериалайзер ингридиентов в рецепте."""
     id = IntegerField(write_only=True)
     amount = IntegerField(
         validators=(
             MinValueValidator(1, message='Минимальное количество - 1.'),
         )
     )
+    '''Изначально данный сериализатор был в апи. Но возникала ошибка 
+    из-за того, что два файла сериализаторов взаимно ссылались друг
+    на друга. Чтобы это пофиксить, пришлось перенести сюда.
+    Если прям критично, убрать его из юзера, то буду думать.
+    Например, в сериалайзер в приложение рецептов.
+    Если нет, то мне одной ошибкой будет меньше'''
 
     class Meta:
         model = IngredientInRecipe

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -27,7 +28,7 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return f'{self.name}, {self.measurement_unit}'
@@ -53,20 +54,23 @@ class Recipe(models.Model):
     image = models.ImageField(
         verbose_name='Изображение',
         upload_to='recipes/',
-        )
+    )
     text = models.TextField(verbose_name='Описание',)
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления',
+        validators=(
+            MinValueValidator(1, message='Минимальное количество - 1.'),
         )
+    )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True,
-        )
+    )
 
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
 
     def is_favorited(self, user):
         return self.favorites.filter(user=user).exists()
@@ -85,14 +89,19 @@ class IngredientInRecipe(models.Model):
         on_delete=models.CASCADE,
         related_name='ingredient_list',
         verbose_name='Рецепт',
-        )
+    )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         related_name='ingredient_list',
         verbose_name='Ингредиент',
+    )
+    amount = models.PositiveIntegerField(
+        verbose_name='Количество',
+        validators=(
+            MinValueValidator(1, message='Минимальное количество - 1.'),
         )
-    amount = models.PositiveIntegerField('Количество')
+    )
 
     class Meta:
         verbose_name = 'Ингредиент в рецепте'

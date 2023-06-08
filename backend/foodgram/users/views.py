@@ -31,17 +31,21 @@ class CustomUserViewSet(UserViewSet):
         author = get_object_or_404(User, id=author_id)
 
         if request.method == 'POST':
-            serializer = SubscriptionSerializer(author,
-                                             data=request.data,
-                                             context={"request": request})
+            serializer = SubscriptionSerializer(
+                author,
+                data=request.data,
+                context={"request": request}
+            )
             serializer.is_valid(raise_exception=True)
             Subscribe.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
-            subscription = get_object_or_404(Subscribe,
-                                             user=user,
-                                             author=author)
+            subscription = get_object_or_404(
+                Subscribe,
+                user=user,
+                author=author
+            )
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -54,7 +58,9 @@ class CustomUserViewSet(UserViewSet):
         user = request.user
         queryset = User.objects.filter(subscribing__user=user)
         pages = self.paginate_queryset(queryset)
-        serializer = SubscriptionSerializer(pages,
-                                         many=True,
-                                         context={'request': request})
+        serializer = SubscriptionSerializer(
+            pages,
+            many=True,
+            context={'request': request}
+        )
         return self.get_paginated_response(serializer.data)
