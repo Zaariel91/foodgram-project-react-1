@@ -25,7 +25,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = RecipeFilter
     pagination_class = LimitPageNumberPagination
 
-    
     def perform_create(self, serializer):
         """Функция создания нового рецепта."""
         serializer.save(author=self.request.user,)
@@ -34,7 +33,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action in ('create', 'partial_update'):
             return RecipeWriteSerializer
         return RecipeSerializer
-    
+
     @action(
         detail=True,
         methods=['post', 'delete'],
@@ -105,6 +104,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = (
             'attachment; filename="shopping_list.txt"')
         return response
+
 
 class IngredientViewSet(viewsets.ModelViewSet):
     """Вьюсет для работы с моделями ингридиентов."""

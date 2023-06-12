@@ -40,7 +40,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-    
+
 
 class Subscribe(models.Model):
     """Модель юзера и автора"""
@@ -49,13 +49,13 @@ class Subscribe(models.Model):
         on_delete=models.CASCADE,
         related_name="subscriber",
         verbose_name='Подписчик'
-        )
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="following",
         verbose_name='Автор'
-        )
+    )
 
     class Meta:
         verbose_name = 'Подписка'

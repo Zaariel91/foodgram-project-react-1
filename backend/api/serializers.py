@@ -2,16 +2,13 @@ from django.core.validators import MinValueValidator
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Sum
-from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField, IntegerField
 from rest_framework import exceptions, serializers, validators
-
 from recipes.models import (
-    Ingredient, Tag, Recipe, Favourite,
-    ShoppingCart, IngredientInRecipe
+    Ingredient, Tag, Recipe,
+    Favourite, IngredientInRecipe
 )
-
 
 User = get_user_model()
 
@@ -39,9 +36,9 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             validators.UniqueValidator(
                 message='Данный адрес уже используется.',
                 queryset=User.objects.all()
-                )
-            ]
-        )
+            )
+        ]
+    )
     username = serializers.CharField(
         validators=[
             validators.UniqueValidator(
@@ -55,7 +52,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         model = User
         fields = ('id', 'email', 'username',
                   'first_name', 'last_name', 'password')
-        
+
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError(
@@ -137,13 +134,12 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_ingredients(self, obj):
         """Метод работы со списком ингридиентов."""
-        ingredients = obj.ingredients.values(
+        return obj.ingredients.values(
             'id',
             'name',
             'measurement_unit',
             amount=Sum('amount')
         )
-        return ingredients
 
     def get_is_favorited(self, obj):
         """Метод работы с избранным."""
@@ -188,8 +184,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             })
         if len(value) != len(set(value)):
             raise exceptions.ValidationError({
-                    'Ингридиент уже есть в списке.'
-                })
+                'Ингридиент уже есть в списке.'
+            })
         for item in value:
             if int(item['amount']) < 1:
                 raise exceptions.ValidationError({
@@ -249,7 +245,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         context = {'request': self.context.get('request')}
         serializer = RecipeSerializer(instance, context=context)
         return serializer.data
-    
+
+
 class FavouriteRecipeSerializer(serializers.ModelSerializer):
     """Сериалайзер для избранных рецептов."""
     image = Base64ImageField()
