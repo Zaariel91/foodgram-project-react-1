@@ -42,6 +42,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./backend
+          file: ./backend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram-backend:latest
 
@@ -70,7 +71,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs:
-      - tests
       - build_and_push_backend_to_docker_hub
       - build_and_push_frontend_to_docker_hub
     steps:
@@ -85,9 +85,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-backend:latest
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-frontend:latest
             
-            sudo docker-compose stop
-            sudo docker-compose rm backend
-            # rm .env
+            sudo rm .env
             touch .env
 
             sudo echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
@@ -97,7 +95,9 @@ jobs:
             sudo echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
             sudo echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             sudo echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-            
+
+            sudo docker-compose stop
+            sudo docker-compose rm backend
             sudo docker-compose up -d
   
   send_message:
