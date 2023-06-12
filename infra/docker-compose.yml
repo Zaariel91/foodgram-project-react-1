@@ -20,7 +20,7 @@ services:
       - ./.env
 
   frontend:
-    image: vindarval/foodgram-backend:latest
+    image: vindarval/foodgram-frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
 
