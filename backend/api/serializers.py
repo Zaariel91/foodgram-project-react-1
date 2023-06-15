@@ -63,7 +63,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 class CustomUserSerializer(UserSerializer):
     """Сериалайзер отображения инфо о пользователях."""
-    is_subscribed = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -122,9 +122,9 @@ class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для объекта класса Recipe."""
     tags = TagSerializer(many=True)
     author = CustomUserSerializer(read_only=True)
-    ingredients = serializers.SerializerMethodField()
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
+    ingredients = serializers.SerializerMethodField(read_only=True)
+    is_favorited = serializers.SerializerMethodField(read_only=True)
+    is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
     image = Base64ImageField()
 
     class Meta:
