@@ -120,7 +120,7 @@ class RecipeCreateIngredientsSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для объекта класса Recipe."""
-    tags = TagSerializer(many=True)
+    tags = TagSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField(read_only=True)
     is_favorited = serializers.SerializerMethodField(read_only=True)
@@ -163,7 +163,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     ingredients = RecipeCreateIngredientsSerializer(many=True)
     image = Base64ImageField()
-    cooking_time = IntegerField(
+    cooking_time = serializers.IntegerField(
         validators=(
             MinValueValidator(
                 1,
@@ -219,10 +219,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         """Метод создания рецепта."""
-        # author = self.context.get('request').user
+        author = self.context.get('request').user
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
+        recipe = Recipe.objects.create(author=author, **validated_data)
         recipe.tags.set(tags)
         self.amounts_of_ingredients(recipe=recipe, ingredients=ingredients)
         return recipe
