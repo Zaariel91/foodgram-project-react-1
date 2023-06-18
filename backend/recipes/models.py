@@ -71,14 +71,14 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
         ordering = ('-pub_date',)
 
-    def is_favorited(self, user):
+    '''def is_favorited(self, user):
         return self.favorites.filter(user=user).exists()
 
     def is_in_shopping_cart(self, user):
         return self.shopping.filter(user=user).exists()
 
     def __str__(self):
-        return self.name
+        return self.name'''
 
 
 class IngredientInRecipe(models.Model):
